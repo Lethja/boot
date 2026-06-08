@@ -122,8 +122,17 @@ start:
 	jz .boot80486
 
 	; Test if CPU is x86_64 compatible otherwise boot 80486 with CPUID
-	jmp .boot80idp
+	mov eax, 80000000h
+	cpuid
+	cmp eax, 80000001h
+	jb .boot80idp
+	mov eax, 80000001h
+	cpuid
+	test edx, 1 << 29
+	jz .boot80idp
+	jmp .bootx8664
 
+; Boot jumps
 .boot8086:
 	mov si, cpu086msg
 	call .print
@@ -143,7 +152,7 @@ start:
 	mov si, cpu486msg
 	call .print
 	jmp .halt
-	
+
 .boot80idp:
 	mov si, cpuidpmsg
 	call .print
