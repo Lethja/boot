@@ -12,7 +12,7 @@ disk/x86_160.ima: arch/x86/stage1.bin disk
 disk/x86_720.ima: arch/x86/stage1.bin disk
 	$(LUA) scripts/blobcat.lua 737280 $< > $@
 
-arch/x86/stage1.bin: arch/x86/stage1.asm
+arch/x86/stage1.bin: arch/x86/stage1.asm arch/x86/pm.asm
 	$(NASM) -f bin $< -o $@
 
 clean:

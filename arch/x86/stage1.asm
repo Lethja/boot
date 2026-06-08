@@ -146,17 +146,17 @@ start:
 .boot80386:
 	mov si, cpu386msg
 	call .print
-	jmp .halt
+	jmp pm
 
 .boot80486:
 	mov si, cpu486msg
 	call .print
-	jmp .halt
+	jmp pm
 
 .boot80idp:
 	mov si, cpuidpmsg
 	call .print
-	jmp .halt
+	jmp pm
 
 .bootx8664:
 	mov si, cpu64bmsg
@@ -172,6 +172,8 @@ cpu486msg db '     80486',0
 cpuidpmsg db '    80486+',0
 cpu64bmsg db '    x86_64',0
 hltmsg db 'HALTED',0
+
+%include "arch/x86/pm.asm"
 
 times 510-($-$$) db 0
 dw 0AA55h
