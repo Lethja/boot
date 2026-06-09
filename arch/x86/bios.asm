@@ -12,9 +12,16 @@ start:
 	call .newline
 	mov si, hltmsg
 	call .print
-.halt_hang:
-	hlt
-	jmp .halt_hang
+
+.wait:
+	mov ah, 0
+	int 16h
+
+.reboot:
+	; Jump to address 0FFFFh:0 to warm reset (equivilent to pressing Ctrl-Alt-Delete)
+	db 0x0ea
+	dw 0x0000
+	dw 0xffff
 
 .newline:
 	; Get current cursor position
@@ -148,7 +155,7 @@ start:
 	jmp .halt
 
 botdrv db 0
-hltmsg db 'HALTED',0
+hltmsg db 'RM HALTED',0
 
 %include "arch/x86/pm.asm"
 

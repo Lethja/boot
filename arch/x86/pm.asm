@@ -67,17 +67,71 @@ bits 32
 	in al, 0x92
 	or al, 2
 	out 0x92, al
-
-.print:
-	movzx edi, word [cursor]
-	shl edi, 1
-	add edi, 0xB8000
-
-	mov ax, 0x0750
-	mov [edi], ax
-
-	mov ax, 0x074d
-	mov [edi+2], ax
+	mov byte [hltmsg], 'P'
 
 .halt:
-	jmp .halt
+	mov esi, hltmsg
+	call .print
+
+.wait:
+	; Wait for keyboard input
+	in al, 0x64
+	test al, 1
+	jz .wait
+
+	; Read scan code
+	in al, 0x60
+
+.reboot:
+	cli
+
+.reboot_idt:
+	; Triple fault the protected mode processor forcing a reset
+	dw 0
+	dd 0
+	lidt [.reboot_idt]
+	int 3
+
+.print:
+.print_next:
+	lodsb
+	test al, al
+	jz .print_done
+
+	call .print_putc
+	jmp .print_next
+
+.print_done:
+	call .update_cursor
+	ret
+
+.print_putc:
+	push ebx
+	push edi
+	mov bl, al
+	movzx edi, word [cursor]
+	shl edi, 1                ; *2 bytes per cell
+	add edi, VIDEO_MEMORY
+	mov al, bl
+	mov ah, 0x07
+	mov [edi], ax
+	inc word [cursor]
+	pop edi
+	pop ebx
+	ret
+
+.update_cursor:
+	mov bx, [cursor]
+	mov dx, 0x3D4
+	mov al, 0x0F
+	out dx, al
+	mov dx, 0x3D5
+	mov al, bl
+	out dx, al
+	mov dx, 0x3D4
+	mov al, 0x0E
+	out dx, al
+	mov dx, 0x3D5
+	mov al, bh
+	out dx, al
+	ret
