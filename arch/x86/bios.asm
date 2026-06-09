@@ -152,12 +152,17 @@ start:
 	jmp pm
 
 .bootx8664:
-	jmp .halt
-
-botdrv db 0
-hltmsg db 'RM HALTED',0
+	jmp lm
 
 %include "arch/x86/pm.asm"
 
-times 510-($-$$) db 0
-dw 0AA55h
+times 497-($-$$) db 0 ; Pad zeros for what remains of the first sector
+; Values at the end of the sector
+cursor dw 0x0
+botdrv db 0
+hltmsg db 'RM HALTED',0
+dw 0AA55h ; BIOS boot magic number
+
+; Sector 2 of disk
+
+%include "arch/x86/lm.asm"

@@ -12,7 +12,7 @@ disk/x86_160.ima: bin/x86/boot.bin disk
 disk/x86_720.ima: bin/x86/boot.bin disk
 	$(LUA) scripts/blobcat.lua 737280 $< > $@
 
-bin/x86/boot.bin: arch/x86/bios.asm arch/x86/pm.asm bin
+bin/x86/boot.bin: arch/x86/bios.asm arch/x86/lm.asm arch/x86/pm.asm bin
 	$(NASM) -f bin $< -o $@
 
 clean:

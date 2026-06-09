@@ -3,7 +3,8 @@ WHITE_ON_BLACK   equ 0x0F
 
 CODE_OFFSET equ 0x8
 DATA_OFFSET equ 0x10
-cursor dw 0x0
+
+then dd pm.halt  ; Where protected mode should jump to after being initialized. Might be overwritten to jump into long mode setup
 
 gdt:
 .start:
@@ -68,6 +69,7 @@ bits 32
 	or al, 2
 	out 0x92, al
 	mov byte [hltmsg], 'P'
+	jmp [then]
 
 .halt:
 	mov esi, hltmsg
