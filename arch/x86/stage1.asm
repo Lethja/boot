@@ -61,10 +61,6 @@ start:
 	jc .halt
 
 .cpudetect: ; Stage 3
-	mov si, cpumsg
-	call .newline
-	call .print
-
 	; Test if CPU is 80286 compatible otherwise boot 8086
 	pushf
 	pop ax
@@ -134,43 +130,24 @@ start:
 
 ; Boot jumps
 .boot8086:
-	mov si, cpu086msg
-	call .print
 	jmp .halt
 
 .boot80286:
-	mov si, cpu286msg
-	call .print
 	jmp .halt
 
 .boot80386:
-	mov si, cpu386msg
-	call .print
 	jmp pm
 
 .boot80486:
-	mov si, cpu486msg
-	call .print
 	jmp pm
 
 .boot80idp:
-	mov si, cpuidpmsg
-	call .print
 	jmp pm
 
 .bootx8664:
-	mov si, cpu64bmsg
-	call .print
 	jmp .halt
 
 botdrv db 0
-cpumsg db 'CPU ARCH',0
-cpu086msg db '      8086',0
-cpu286msg db '     80286',0
-cpu386msg db '     80386',0
-cpu486msg db '     80486',0
-cpuidpmsg db '    80486+',0
-cpu64bmsg db '    x86_64',0
 hltmsg db 'HALTED',0
 
 %include "arch/x86/pm.asm"
