@@ -12,10 +12,7 @@ start:
 	call .newline
 	mov si, hltmsg
 	call .print
-
-.wait:
-	mov ah, 0
-	int 16h
+	call .wait
 
 .reboot:
 	; Jump to address 0FFFFh:0 to warm reset (equivilent to pressing Ctrl-Alt-Delete)
@@ -51,6 +48,11 @@ start:
 	jmp .print
 
 .print_done:
+	ret
+
+.wait:
+	mov ah, 0
+	int 16h
 	ret
 
 .stage1:

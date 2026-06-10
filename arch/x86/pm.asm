@@ -74,15 +74,7 @@ bits 32
 .halt:
 	mov esi, hltmsg
 	call .print
-
-.wait:
-	; Wait for keyboard input
-	in al, 0x64
-	test al, 1
-	jz .wait
-
-	; Read scan code
-	in al, 0x60
+	call .wait
 
 .reboot:
 	cli
@@ -136,4 +128,14 @@ bits 32
 	mov dx, 0x3D5
 	mov al, bh
 	out dx, al
+	ret
+
+.wait:
+	; Wait for keyboard input
+	in al, 0x64
+	test al, 1
+	jz .wait
+
+	; Read scan code
+	in al, 0x60
 	ret
