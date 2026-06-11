@@ -1,6 +1,8 @@
 
 LUA  := lua
 NASM := nasm
+QEMU_I386 := qemu-system-i386
+QEMU_X86_64 := qemu-system-x86_64
 
 .PHONY: clean all
 
@@ -23,3 +25,9 @@ disk:
 
 bin:
 	mkdir -p bin/{x86,}
+
+qemu-i386: disk/x86_720.ima
+	$(QEMU_I386) $< -d int,cpu_reset
+
+qemu-x86_64: disk/x86_720.ima
+	$(QEMU_X86_64) $< -d int,cpu_reset
