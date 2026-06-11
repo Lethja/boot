@@ -33,7 +33,7 @@ gdt:
 
 pm:
 .load:
-	call start.newline
+	call rm.newline
 	mov ah, 03h
 	mov bh, 0
 	int 10h             ; Get cursor position before protected mode eats

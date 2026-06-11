@@ -1,7 +1,7 @@
 bits 16
 org 7C00h
 
-start:
+rm:
 	xor ax, ax
 	mov ds, ax
 	mov ss, ax
