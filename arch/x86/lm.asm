@@ -64,6 +64,7 @@ lm:
 	jmp CODE_OFFSET:.halt
 
 bits 64
+default rel
 
 .halt:
 	mov byte [hltmsg], 'L'
