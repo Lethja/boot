@@ -158,11 +158,12 @@ start:
 
 %include "arch/x86/pm.asm"
 
-times 497-($-$$) db 0 ; Pad zeros for what remains of the first sector
+times 493-($-$$) db 0 ; Pad zeros for what remains of the first sector
 ; Values at the end of the sector
-cursor dw 0x0
-botdrv db 0
-hltmsg db 'RM HALTED',0
+then dd pm.halt         ; Where protected mode should jump to after being initialized. Might be overwritten to jump into long mode setup
+cursor dw 0x0           ; The position of the cursor
+botdrv db 0             ; The disk the BIOS says it booted
+hltmsg db 'RM HALTED',0 ; The halt message which is overwritten as modes change
 dw 0AA55h ; BIOS boot magic number
 
 ; Sector 2 of disk

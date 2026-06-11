@@ -4,20 +4,18 @@ WHITE_ON_BLACK   equ 0x0F
 CODE_OFFSET equ 0x8
 DATA_OFFSET equ 0x10
 
-then dd pm.halt  ; Where protected mode should jump to after being initialized. Might be overwritten to jump into long mode setup
-
 gdt:
 .start:
 	dd 0x0
 	dd 0x0
 
 	; Code Segment descriptor
-	dw 0xFFFF    ; Limit
-	dw 0x0000    ; Base
-	db 0x00      ; Base
-	db 10011010b ; Access byte
-	db 11001111b ; Flags
-	db 0x00      ; Base
+	dw 0xFFFF             ; Limit
+	dw 0x0000             ; Base
+	db 0x00               ; Base
+	db 10011010b          ; Access byte
+	.c_flags db 11001111b ; Flags
+	db 0x00               ; Base
 
 	; Data Segment descriptor
 	dw 0xFFFF    ; Limit
@@ -81,9 +79,7 @@ bits 32
 
 .reboot_idt:
 	; Triple fault the protected mode processor forcing a reset
-	dw 0
-	dd 0
-	lidt [.reboot_idt]
+	lidt [gdt.start]
 	int 3
 
 .print:
