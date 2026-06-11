@@ -18,7 +18,7 @@ bin/x86/boot.bin: arch/x86/rm.asm arch/x86/lm.asm arch/x86/pm.asm bin
 	$(NASM) -f bin $< -o $@
 
 clean:
-	rm -R bin disk
+	rm -Rf bin disk
 
 disk:
 	mkdir -p disk
