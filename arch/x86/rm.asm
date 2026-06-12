@@ -1,3 +1,5 @@
+%include "arch/x86/config.asm"
+
 bits 16
 org 7C00h
 
@@ -70,6 +72,10 @@ rm:
 	jc .halt
 
 .cpudetect: ; Stage 3
+
+%if BOOT_MAX == 1
+    jmp BOOT_8086
+%else
 	; Test if CPU is 80286 compatible otherwise boot 8086
 	pushf
 	pop ax
@@ -81,8 +87,10 @@ rm:
 	pop ax
 	and ax, 0F000h
 	cmp ax, 0F000h
-	je .boot8086
+	je BOOT_8086
+%endif
 
+%if BOOT_MAX > 2
 	; Test if CPU is 80386 compatible otherwise boot 80286
 	pushf
 	pop ax
@@ -94,7 +102,10 @@ rm:
 	pop ax
 	xor ax, cx
 	and ax, 0F000h
-	jz .boot80286
+	jz BOOT_80286
+%else
+    jmp BOOT_80286
+%endif
 
 	; Test if CPU is 80486 compatible otherwise boot 80386
 	pushfd
