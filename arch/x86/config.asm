@@ -2,11 +2,12 @@
 ; To interface with the config please see the README.md
 
 %ifndef BOOT_MAX
-    %ifnum BOOT_MAX
-    %else
-        %error "BOOT_MAX must be a number"
-    %endif
     %define BOOT_MAX 0
+%endif
+
+%ifnum BOOT_MAX
+%else
+    %error "BOOT_MAX must be a number"
 %endif
 
 %ifndef BOOT_8086
