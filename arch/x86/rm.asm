@@ -162,6 +162,8 @@ rm:
 
 ; Boot jumps
 %if BOOT_MAX > 2
+align 2 ; Align the following instructions
+
 .boot80386:
 %if BOOT_80386 != .halt
     mov eax, BOOT_80386
