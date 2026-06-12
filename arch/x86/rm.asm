@@ -73,9 +73,7 @@ rm:
 
 .cpudetect: ; Stage 3
 
-%if BOOT_MAX == 1
-    jmp BOOT_8086
-%else
+%if BOOT_MAX > 1
 	; Test if CPU is 80286 compatible otherwise boot 8086
 	pushf
 	pop ax
@@ -88,6 +86,8 @@ rm:
 	and ax, 0F000h
 	cmp ax, 0F000h
 	je BOOT_8086
+%else
+    jmp BOOT_8086
 %endif
 
 %if BOOT_MAX > 2
@@ -103,10 +103,11 @@ rm:
 	xor ax, cx
 	and ax, 0F000h
 	jz BOOT_80286
-%else
+%elif BOOT_MAX == 2
     jmp BOOT_80286
 %endif
 
+%if BOOT_MAX > 3
 	; Test if CPU is 80486 compatible otherwise boot 80386
 	pushfd
 	pop eax
@@ -121,7 +122,11 @@ rm:
 	xor eax, ecx
 	test eax, 1 << 18
 	jz .boot80386
+%elif BOOT_MAX == 3
+    jmp .boot80386
+%endif
 
+%if BOOT_MAX > 4
 	; Test if CPU is CPUID compatible otherwith boot 80486
 	pushfd
 	pop eax
@@ -136,47 +141,80 @@ rm:
 	xor eax, ecx
 	test eax, 1 << 21
 	jz .boot80486
+%elif BOOT_MAX == 4
+    jmp .boot80486
+%endif
 
+%if BOOT_MAX > 5
 	; Test if CPU is x86_64 compatible otherwise boot 80486 with CPUID
 	mov eax, 80000000h
 	cpuid
 	cmp eax, 80000001h
-	jb .boot80idp
+	jb .bootcpuid
 	mov eax, 80000001h
 	cpuid
 	test edx, 1 << 29
-	jz .boot80idp
+	jz .bootcpuid
 	jmp .bootx8664
+%elif BOOT_MAX == 5
+    jmp .bootcpuid
+%endif
 
 ; Boot jumps
-.boot8086:
-	jmp .halt
-
-.boot80286:
-	jmp .halt
-
+%if BOOT_MAX > 2
 .boot80386:
+%if BOOT_80386 != .halt
+    mov eax, BOOT_80386
+    mov [then], eax
+%endif
 	jmp pm
+%endif
 
+%if BOOT_MAX > 3
 .boot80486:
+%if BOOT_80486 != .halt
+    mov eax, BOOT_80486
+    mov [then], eax
+%endif
 	jmp pm
+%endif
 
-.boot80idp:
+%if BOOT_MAX > 4
+.bootcpuid:
+%if BOOT_CPUID != .halt
+    mov eax, BOOT_CPUID
+    mov [then], eax
+%endif
 	jmp pm
+%endif
 
+%if BOOT_MAX > 5
 .bootx8664:
 	jmp lm
+%endif
 
+%if BOOT_MAX > 2
 %include "arch/x86/pm.asm"
+%endif
 
-times 493-($-$$) db 0 ; Pad zeros for what remains of the first sector
-; Values at the end of the sector
+%if BOOT_MAX > 2
+
+times 493-($-$$) db 0   ; Pad zeros for what remains of the first sector
+                        ; Values at the end of the sector
 then dd pm.halt         ; Where protected mode should jump to after being initialized. Might be overwritten to jump into long mode setup
 cursor dw 0x0           ; The position of the cursor
+
+%endif
+
 botdrv db 0             ; The disk the BIOS says it booted
 hltmsg db 'RM HALTED',0 ; The halt message which is overwritten as modes change
-dw 0AA55h ; BIOS boot magic number
+times 510-($-$$) db 0   ; Pad zeros up to the magic number of the first sector
+dw 0AA55h               ; BIOS boot magic number
 
 ; Sector 2 of disk
 
+%if BOOT_MAX > 5
 %include "arch/x86/lm.asm"
+%endif
+
+end_boot:

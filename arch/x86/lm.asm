@@ -116,5 +116,3 @@ default rel
 	ret
 
 base dq 0
-
-end_boot:
