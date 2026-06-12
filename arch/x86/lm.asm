@@ -1,5 +1,5 @@
-PDPT equ 4096
-PD   equ 8192
+page_directory_pointer_table equ 4096
+page_directory               equ 8192
 
 lm:
 	; Jump back into long mode setup after switching to protected mode
@@ -26,19 +26,19 @@ lm:
 	; Build paging
 	mov edi, [base]
 	mov eax, edi
-	add eax, PDPT
+	add eax, page_directory_pointer_table
 	mov ebx, edi
-	add ebx, PD
+	add ebx, page_directory
 
-	; PML4 → PDPT
+	; Page map level 4 to page directory pointer table
 	mov [edi], eax
 	or  dword [edi], 3
 
-	; PDPT → PD
+	; Page directory pointer table to page directory
 	mov [eax], ebx
 	or  dword [eax], 3
 
-	; PD → 2MB identity mapping
+	; Page_directory to 2MB identity mapping
 	mov dword [ebx], 0x83
 
 	; Load CR3
@@ -67,8 +67,8 @@ bits 64
 default rel
 
 .halt:
-	mov byte [hltmsg], 'L'
-	mov rsi, hltmsg
+	mov byte [halt_message], 'L'
+	mov rsi, halt_message
 	call .print
 	call pm.wait
 	call .reboot
@@ -89,13 +89,13 @@ default rel
 	test al, al
 	jz .print_done
 
-	call .print_putc
+	call .print_put_char
 	jmp .print_next
 
 .print_done:
 	ret
 
-.print_putc:
+.print_put_char:
 	push rbx
 	push rdi
 

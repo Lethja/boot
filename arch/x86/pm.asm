@@ -66,11 +66,11 @@ bits 32
 	in al, 0x92
 	or al, 2
 	out 0x92, al
-	mov byte [hltmsg], 'P'
+	mov byte [halt_message], 'P'
 	jmp [then]
 
 .halt:
-	mov esi, hltmsg
+	mov esi, halt_message
 	call .print
 	call .wait
 
@@ -88,14 +88,14 @@ bits 32
 	test al, al
 	jz .print_done
 
-	call .print_putc
+	call .print_put_char
 	jmp .print_next
 
 .print_done:
 	call .update_cursor
 	ret
 
-.print_putc:
+.print_put_char:
 	push ebx
 	push edi
 	mov bl, al

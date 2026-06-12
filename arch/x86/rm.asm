@@ -12,12 +12,12 @@ rm:
 
 .halt:
 	call .newline
-	mov si, hltmsg
+	mov si, halt_message
 	call .print
 	call .wait
 
 .reboot:
-	; Jump to address 0FFFFh:0 to warm reset (equivilent to pressing Ctrl-Alt-Delete)
+	; Jump to address 0FFFFh:0 to warm reset (equivalent to pressing Ctrl-Alt-Delete)
 	db 0x0ea
 	dw 0x0000
 	dw 0xffff
@@ -58,7 +58,7 @@ rm:
 	ret
 
 .stage1:
-	mov [botdrv], dl
+	mov [boot], dl
 
 .stage2:
 	mov bx, 0x7E00
@@ -67,11 +67,11 @@ rm:
 	mov ch, 0
 	mov cl, 2
 	mov dh, 0
-	mov dl, [botdrv]
+	mov dl, [boot]
 	int 0x13
 	jc .halt
 
-.cpudetect: ; Stage 3
+.cpu_detect: ; Stage 3
 
 %if BOOT_MAX > 1
 	; Test if CPU is 80286 compatible otherwise boot 8086
@@ -121,13 +121,13 @@ rm:
 	popfd
 	xor eax, ecx
 	test eax, 1 << 18
-	jz .boot80386
+	jz .boot_80386
 %elif BOOT_MAX == 3
-    jmp .boot80386
+    jmp .boot_80386
 %endif
 
 %if BOOT_MAX > 4
-	; Test if CPU is CPUID compatible otherwith boot 80486
+	; Test if CPU is CPUID compatible otherwise boot 80486
 	pushfd
 	pop eax
 	mov ecx, eax
@@ -140,9 +140,9 @@ rm:
 	popfd
 	xor eax, ecx
 	test eax, 1 << 21
-	jz .boot80486
+	jz .boot_80486
 %elif BOOT_MAX == 4
-    jmp .boot80486
+    jmp .boot_80486
 %endif
 
 %if BOOT_MAX > 5
@@ -150,21 +150,21 @@ rm:
 	mov eax, 80000000h
 	cpuid
 	cmp eax, 80000001h
-	jb .bootcpuid
+	jb .boot_cpuid
 	mov eax, 80000001h
 	cpuid
 	test edx, 1 << 29
-	jz .bootcpuid
-	jmp .bootx8664
+	jz .boot_cpuid
+	jmp .boot_x86_64
 %elif BOOT_MAX == 5
-    jmp .bootcpuid
+    jmp .boot_cpuid
 %endif
 
 ; Boot jumps
 %if BOOT_MAX > 2
 align 2 ; Align the following instructions
 
-.boot80386:
+.boot_80386:
 %if BOOT_80386 != .halt
     mov eax, BOOT_80386
     mov [then], eax
@@ -173,7 +173,7 @@ align 2 ; Align the following instructions
 %endif
 
 %if BOOT_MAX > 3
-.boot80486:
+.boot_80486:
 %if BOOT_80486 != .halt
     mov eax, BOOT_80486
     mov [then], eax
@@ -182,7 +182,7 @@ align 2 ; Align the following instructions
 %endif
 
 %if BOOT_MAX > 4
-.bootcpuid:
+.boot_cpuid:
 %if BOOT_CPUID != .halt
     mov eax, BOOT_CPUID
     mov [then], eax
@@ -191,7 +191,7 @@ align 2 ; Align the following instructions
 %endif
 
 %if BOOT_MAX > 5
-.bootx8664:
+.boot_x86_64:
 	jmp lm
 %endif
 
@@ -208,10 +208,10 @@ cursor dw 0x0           ; The position of the cursor
 
 %endif
 
-botdrv db 0             ; The disk the BIOS says it booted
-hltmsg db 'RM HALTED',0 ; The halt message which is overwritten as modes change
-times 510-($-$$) db 0   ; Pad zeros up to the magic number of the first sector
-dw 0AA55h               ; BIOS boot magic number
+boot db 0                     ; The disk the BIOS says it booted
+halt_message db 'RM HALTED',0 ; The halt message which is overwritten as modes change
+times 510-($-$$) db 0         ; Pad zeros up to the magic number of the first sector
+dw 0AA55h                     ; BIOS boot magic number
 
 ; Sector 2 of disk
 
