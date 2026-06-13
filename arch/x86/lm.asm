@@ -67,6 +67,10 @@ bits 64
 default rel
 
 .halt:
+%ifdef AUTOTEST
+    mov eax, 0
+    jmp rm.halt
+%else
 	mov byte [halt_message], 'L'
 	mov rsi, halt_message
 	call .print
@@ -82,6 +86,7 @@ default rel
 	dq 0
 	lidt [.reboot_idt]
 	int 3
+%endif
 
 .print:
 .print_next:

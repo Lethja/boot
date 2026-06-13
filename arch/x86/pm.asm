@@ -70,6 +70,10 @@ bits 32
 	jmp [then]
 
 .halt:
+%ifdef AUTOTEST
+    mov al, 0
+    jmp rm.halt
+%else
 	mov esi, halt_message
 	call .print
 	call .wait
@@ -81,6 +85,7 @@ bits 32
 	; Triple fault the protected mode processor forcing a reset
 	lidt [gdt.start]
 	int 3
+%endif
 
 .print:
 .print_next:

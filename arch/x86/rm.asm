@@ -11,6 +11,11 @@ rm:
 	jmp .stage1
 
 .halt:
+%ifdef AUTOTEST
+    mov dx, AUTOTEST
+    mov eax, 0
+    out dx, eax
+%endif
 	call .newline
 	mov si, halt_message
 	call .print
