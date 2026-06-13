@@ -36,7 +36,7 @@ qemu-i386: disk/x86_720.ima
 qemu-x86_64: disk/x86_720.ima
 	$(QEMU_X86_64) $< -d int,cpu_reset
 
-zip/disks.zip: all
+zip/disks.zip: demo
 	mkdir -p zip
 	zip --DOS-names -j9 $@ disk/*
 
