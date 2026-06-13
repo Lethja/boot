@@ -65,10 +65,10 @@ test/testlm.ima: test/testlm.bin test
 	$(LUA) scripts/blobcat.lua 163840 $< > $@
 
 test-qemu-rm: test/testrm.ima
-	timeout 5 $(QEMU_I386) $< -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$status"
+	timeout 5 $(QEMU_I386) $< -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$$status"
 
 test-qemu-pm: test/testpm.ima
-	timeout 5 $(QEMU_I386) $< -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$status"
+	timeout 5 $(QEMU_I386) $< -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$$status"
 
 test-qemu-lm: test/testlm.ima
-	timeout 5 $(QEMU_X86_64) $< -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$status"
+	timeout 5 $(QEMU_X86_64) $< -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$$status"
