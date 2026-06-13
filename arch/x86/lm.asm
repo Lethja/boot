@@ -1,6 +1,7 @@
 page_directory_pointer_table equ 4096
 page_directory               equ 8192
 
+bits 16
 lm:
 	; Jump back into long mode setup after switching to protected mode
 	mov eax, .after_pm
@@ -8,6 +9,7 @@ lm:
 	cli
 	jmp pm
 
+bits 32
 .after_pm:
 	; Allocate aligned 16KB region
 	mov edi, end_boot

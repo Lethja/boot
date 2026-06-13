@@ -10,16 +10,19 @@ rm:
 	mov sp, 0x7C00
 	jmp .stage1
 
-.halt:
 %ifdef AUTOTEST
+align 8 ; 64-bit alignment
+.halt:
     mov dx, AUTOTEST
     mov eax, 0
     out dx, eax
-%endif
+%else
+.halt:
 	call .newline
 	mov si, halt_message
 	call .print
 	call .wait
+%endif
 
 .reboot:
 	; Jump to address 0FFFFh:0 to warm reset (equivalent to pressing Ctrl-Alt-Delete)
@@ -160,7 +163,7 @@ rm:
 	cpuid
 	test edx, 1 << 29
 	jz .boot_cpuid
-	jmp .boot_x86_64
+	jmp lm
 %elif BOOT_MAX == 5
     jmp .boot_cpuid
 %endif
@@ -193,11 +196,6 @@ align 2 ; Align the following instructions
     mov [then], eax
 %endif
 	jmp pm
-%endif
-
-%if BOOT_MAX > 5
-.boot_x86_64:
-	jmp lm
 %endif
 
 %if BOOT_MAX > 2
