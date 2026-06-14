@@ -46,29 +46,38 @@ unit-test: test-qemu-rm test-qemu-pm test-qemu-lm
 test:
 	mkdir -p $@
 
-test/testrm.bin: arch/x86/rm.asm arch/x86/lm.asm arch/x86/pm.asm arch/x86/config.asm test
+test/test8086.bin: arch/x86/rm.asm arch/x86/lm.asm arch/x86/pm.asm arch/x86/config.asm test
 	$(NASM) -DBOOT_MAX=1 -DAUTOTEST=$(TEST_ADDR) -f bin $< -o $@
 
-test/testpm.bin: arch/x86/rm.asm arch/x86/lm.asm arch/x86/pm.asm arch/x86/config.asm test
+test/testi286.bin: arch/x86/rm.asm arch/x86/lm.asm arch/x86/pm.asm arch/x86/config.asm test
+	$(NASM) -DBOOT_MAX=2 -DAUTOTEST=$(TEST_ADDR) -f bin $< -o $@
+
+test/testi386.bin: arch/x86/rm.asm arch/x86/lm.asm arch/x86/pm.asm arch/x86/config.asm test
+	$(NASM) -DBOOT_MAX=3 -DAUTOTEST=$(TEST_ADDR) -f bin $< -o $@
+
+test/testi486.bin: arch/x86/rm.asm arch/x86/lm.asm arch/x86/pm.asm arch/x86/config.asm test
+	$(NASM) -DBOOT_MAX=4 -DAUTOTEST=$(TEST_ADDR) -f bin $< -o $@
+
+test/testcpui.bin: arch/x86/rm.asm arch/x86/lm.asm arch/x86/pm.asm arch/x86/config.asm test
 	$(NASM) -DBOOT_MAX=5 -DAUTOTEST=$(TEST_ADDR) -f bin $< -o $@
 
-test/testlm.bin: arch/x86/rm.asm arch/x86/lm.asm arch/x86/pm.asm arch/x86/config.asm test
+test/testlong.bin: arch/x86/rm.asm arch/x86/lm.asm arch/x86/pm.asm arch/x86/config.asm test
 	$(NASM) -DBOOT_MAX=6 -DAUTOTEST=$(TEST_ADDR) -f bin $< -o $@
 
-test/testrm.ima: test/testrm.bin test
+test/test%.ima: test/test%.bin test
 	$(LUA) scripts/blobcat.lua 163840 $< > $@
 
-test/testpm.ima: test/testpm.bin test
-	$(LUA) scripts/blobcat.lua 163840 $< > $@
+test-qemu-rm: test/test8086.ima test/testi286.ima
+	for img in $^; do \
+		timeout 5 $(QEMU_I386) $$img -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$$status"; \
+	done
 
-test/testlm.ima: test/testlm.bin test
-	$(LUA) scripts/blobcat.lua 163840 $< > $@
+test-qemu-pm: test/testi386.ima test/testi486.ima test/testcpui.ima
+	for img in $^; do \
+		timeout 5 $(QEMU_I386) $$img -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$$status"; \
+	done
 
-test-qemu-rm: test/testrm.ima
-	timeout 5 $(QEMU_I386) $< -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$$status"
-
-test-qemu-pm: test/testpm.ima
-	timeout 5 $(QEMU_I386) $< -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$$status"
-
-test-qemu-lm: test/testlm.ima
-	timeout 5 $(QEMU_X86_64) $< -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$$status"
+test-qemu-lm: test/testlong.ima
+	for img in $^; do \
+		timeout 5 $(QEMU_I386) $$img -nographic -display none -device isa-debug-exit,iobase=$(TEST_ADDR),iosize=0x04 < /dev/null > /dev/null 2>&1; status=$$?; [ $$status -eq 1 ] || exit "$$status"; \
+	done
